@@ -1,0 +1,54 @@
+#!/bin/python
+import wx
+
+from asc_viewer import AscCanvas
+
+
+class AscViewer(wx.Frame):
+    def __init__(self, *args, **kwds):
+        super().__init__(None, title="LTspice ASC Viewer", size=(400, 300))
+
+        # Menu Bar
+        self.menu = wx.MenuBar()
+
+        menu = wx.Menu()
+        entry = menu.Append(wx.ID_ANY, "Open ASY directory...", "Open ASY directory")
+        self.Bind(wx.EVT_MENU, self.set_asy, entry)
+        entry = menu.Append(wx.ID_ANY, "Open ASC...", "Open ASC file")
+        self.Bind(wx.EVT_MENU, self.open_asc, entry)
+        self.menu.Append(menu, "&File")
+
+        self.SetMenuBar(self.menu)
+
+        self.asc_canvas = AscCanvas(self, [])
+        self.Layout()
+
+        self.asy_directory = None
+
+    def set_asy(self, event):
+        path = wx.DirSelector("Choose a folder")
+        if not path.strip():
+            return
+        self.asc_canvas.load_symbols([path])
+
+    def open_asc(self, event):
+        d = wx.FileDialog(
+            None, "Select schematic", wildcard="Schematic files (.asc)|*.asc"
+        )
+        if d.ShowModal() == wx.ID_CANCEL:
+            return
+
+        filename = d.GetPath()
+        if filename[-3:] != "asc":
+            wx.MessageDialog(
+                None, "Invalid schematic", "Error", wx.OK | wx.ICON_QUESTION
+            ).ShowModal()
+            return
+
+        self.asc_canvas.load_asc(filename)
+
+
+app = wx.App()
+frame = AscViewer()
+frame.Show()
+app.MainLoop()
