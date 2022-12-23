@@ -1,32 +1,39 @@
 #!/bin/python
-import wx
+""" A minimal demo of the asc_viewer package. There is a menu bar for loading schematics,
+and a status bar for showing net names.
 
+Having the user load symbol paths each time is obviously bad design, and in a real project
+you would pass symbol paths to AscCanvas's constructor.
+"""
+
+import wx
 from asc_viewer import AscCanvas
 
 
 class AscViewer(wx.Frame):
-    def __init__(self, *args, **kwds):
+    def __init__(self):
         super().__init__(None, title="LTspice ASC Viewer", size=(400, 300))
 
         # Menu Bar
         self.menu = wx.MenuBar()
-
         menu = wx.Menu()
         entry = menu.Append(wx.ID_ANY, "Open ASY directory...", "Open ASY directory")
-        self.Bind(wx.EVT_MENU, self.set_asy, entry)
+        self.Bind(wx.EVT_MENU, self.open_asy, entry)
         entry = menu.Append(wx.ID_ANY, "Open ASC...", "Open ASC file")
         self.Bind(wx.EVT_MENU, self.open_asc, entry)
         self.menu.Append(menu, "&File")
-
         self.SetMenuBar(self.menu)
 
-        self.asc_canvas = AscCanvas(self, [])
+        # Status Bar
+        self.statusbar = self.CreateStatusBar(1, wx.STB_DEFAULT_STYLE)
+
+        # Canvas for ASC Schematics
+        self.asc_canvas = AscCanvas(self)
+        self.asc_canvas.Bind(wx.EVT_MOTION, self.on_motion)
         self.Layout()
 
-        self.asy_directory = None
-
-    def set_asy(self, event):
-        path = wx.DirSelector("Choose a folder")
+    def open_asy(self, event):
+        path = wx.DirSelector("Choose a symbol folder")
         if not path.strip():
             return
         self.asc_canvas.load_symbols([path])
@@ -46,6 +53,12 @@ class AscViewer(wx.Frame):
             return
 
         self.asc_canvas.load_asc(filename)
+
+    def on_motion(self, event):
+        net = self.asc_canvas.get_net_under_mouse(event)
+        status_text = net.name if net else ""
+        self.statusbar.SetStatusText(status_text)
+        event.Skip()
 
 
 app = wx.App()

@@ -1,12 +1,13 @@
 import wx
 import math
-from asc_viewer.viewport import Viewport
-from asc_viewer.symbol_instance import SymbolInstance
 import glob, os
 import rtreelib as rt
-from asc_viewer.symbol import Symbol, window_types
 from asc_viewer.bounded_canvas import BoundedCanvas
+from asc_viewer.symbol import Symbol, window_types
+from asc_viewer.symbol_instance import SymbolInstance
+from asc_viewer.viewport import Viewport
 
+# font sizes available in LTspice
 font_size_factors = [0.625, 1, 1.5, 2, 2.5, 3.5, 5, 7]
 
 
@@ -62,7 +63,7 @@ class AscCanvas(BoundedCanvas, Viewport):
     instance_name -- the instance name of this schematic, this is only useful it the schematic is an instantiated subcircuit
     """
 
-    def __init__(self, parent, symbol_paths, instance_name=""):
+    def __init__(self, parent, symbol_paths=[], instance_name=""):
         super().__init__(parent)
 
         self.instance_name = instance_name
@@ -85,6 +86,15 @@ class AscCanvas(BoundedCanvas, Viewport):
         self.red_font = self.create_font(font_size, wx.RED)
         self.gray_font = self.create_font(font_size, wx.Colour(50, 50, 50, 50))
 
+        self.reset()
+
+        self.find_data = wx.FindReplaceData()
+        self.find_dialog = None  # cannot be initialized here yet
+
+        self.Bind(wx.EVT_CHAR_HOOK, self.on_key)
+        self.Bind(wx.EVT_PAINT, self.on_paint)
+
+    def reset(self):
         self.wires = []
         self.wire_points = {}
         self.net_counter = 0  # for auto-labeling nets
@@ -95,12 +105,6 @@ class AscCanvas(BoundedCanvas, Viewport):
         self.nets = {}  # name to net
         self.path = self.gc.CreatePath()
         self.symbol_instances = {}
-
-        self.find_data = wx.FindReplaceData()
-        self.find_dialog = None  # cannot be initialized here yet
-
-        self.Bind(wx.EVT_CHAR_HOOK, self.on_key)
-        self.Bind(wx.EVT_PAINT, self.on_paint)
 
     def load_symbols(self, symbol_paths):
         """Loads symbols from a list of paths to asy files."""
@@ -193,8 +197,9 @@ class AscCanvas(BoundedCanvas, Viewport):
         """Loads an LtSpice schematic from the given filename."""
         instances = []
         self.filename = filename
-        f = open(filename, encoding="iso-8859-1")
+        self.reset()
         self.reset_extent()
+        f = open(filename, encoding="iso-8859-1")
         sheet_w, sheet_h = 0, 0
         for line in f:
             line = line.strip()
@@ -295,7 +300,6 @@ class AscCanvas(BoundedCanvas, Viewport):
                 instances[-1].windows[window["type"]] = window
 
         # load symbol instances
-        self.symbol_instances = {}
         pin_positions = {}
         for instance in instances:
             s = self.symbols.get(instance.name)
@@ -434,6 +438,9 @@ class AscCanvas(BoundedCanvas, Viewport):
 
     def get_net_under_mouse(self, evt):
         """Returns the net under the mouse pointer."""
+        if len(self.wires) == 0:
+            return None
+
         pos = self.mouse_position(evt)
         rect = (pos[0] - 5, pos[1] - 5, pos[0] + 5, pos[1] + 5)
         res = self.wire_lookup.query(rect)

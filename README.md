@@ -10,6 +10,8 @@
 
 **Now if only we could use these schematics in a Python GUI.**
 
+![alt text](https://github.com/ahaensler/asc_viewer/blob/main/screenshot.png "Screenshot")
+
 ## AscCanvas
 The AscCanvas class lets you import a schematic and show it as a wxPython window. It supports zooming, scrolling, searching and subclassing. It uses [rtreelib](https://github.com/lukas-shawford/rtreelib) to look up symbols and nets under the mouse pointer.
 
@@ -20,7 +22,7 @@ To show a schematic, you will need to import these files:
 - ASC files are schematics. They define the connectivity between instances of symbols. Load them by calling `AscCanvas.load_asc()`.
 
 ## asc\_viewer
-`asc_viewer` is a demo executable that lets you opens schematic and shows how to use `AscCanvas`.
+[asc_viewer](https://github.com/ahaensler/asc_viewer/blob/main/bin/asc_viewer) is a demo executable that lets you open schematics and shows how to use `AscCanvas`.
 
 ## Installation
 ```pip install asc_viewer```
