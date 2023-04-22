@@ -77,7 +77,7 @@ class AscCanvas(BoundedCanvas, Viewport):
         self.gc = wx.GraphicsContext.Create(self.dc)
         self.black_pen = wx.Pen(wx.Colour(0, 0, 0), width=2, style=wx.PENSTYLE_SOLID)
         self.red_pen = wx.Pen(wx.Colour(255, 0, 0), width=2, style=wx.PENSTYLE_SOLID)
-        for i in range(4):
+        for i in range(len(font_size_factors)):
             font = self.create_font(font_size_factors[i])
             self.fonts.append(font)
         font_size = 0.8
