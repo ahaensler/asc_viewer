@@ -496,8 +496,12 @@ class AscCanvas(BoundedCanvas, Viewport):
         if not instance_name.startswith(self.instance_name):
             print(f"{instance_name} is not in {self.instance_name}")
             return
-        local_instance = instance_name[len(self.instance_name) + 1 :].split(".")[0]
-        instance_name = self.instance_name + "." + local_instance
+
+        if self.instance_name != "":
+            # remove hierarchical part of instance name
+            local_instance = instance_name[len(self.instance_name) + 1 :].split(".")[0]
+            instance_name = self.instance_name + "." + local_instance
+
         s = self.symbol_instances.get(instance_name)
         if s is None:
             return

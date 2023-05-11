@@ -9,7 +9,7 @@ with io.open(os.path.join(here, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name="asc_viewer",
-    version="1.0.1",
+    version="1.0.2",
     description="A viewer for LTspice ASC schematics implemented in wxPython",
     long_description=long_description,
     long_description_content_type='text/markdown',
