@@ -16,7 +16,7 @@ class Net:
 
     def __init__(self, name):
         self.name = name
-        self.connections = []  # a list of (SymbolInstance, InstancePin, PinName) tuples
+        self.connections = []  # see Connection class below
         self.type = None  # denotes spur type as string
         self.wires = set()
 
@@ -511,8 +511,12 @@ class AscCanvas(BoundedCanvas, Viewport):
         """Paints the schematic."""
         dc = wx.PaintDC(self)
         self.DoPrepareDC(dc)
+        dc.SetBackground(wx.Brush(wx.Colour(255,255,255,255)))
+        dc.Clear()
+
         gc = wx.GraphicsContext.Create(dc)
         gc.Translate(-self.x1, -self.y1)
+
 
         gc.SetPen(self.black_pen)
         gc.StrokePath(self.path)
